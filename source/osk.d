@@ -20,7 +20,7 @@ const WM_DRAWOSK = WM_APP + 1;
 
 const UINT OSK_WIDTH_WITH_NUMPAD_96DPI = 1000;
 const UINT OSK_WIDTH_NO_NUMPAD_96DPI = 750;
-const UINT OSK_HEIGHT_96DPI = 250;
+const UINT OSK_HEIGHT_96DPI = 350; // 250;
 const UINT OSK_BOTTOM_OFFSET_96DPI = 5;
 const UINT OSK_MIN_WIDTH_96DPI = 250;
 
@@ -34,8 +34,6 @@ enum OSKTheme {
     Grey,
     NeoBlue
 }
-
-
 struct OSKKeyInfo {
     float x;
     float y;
@@ -43,95 +41,95 @@ struct OSKKeyInfo {
     Scancode scan;
 }
 
-auto KEY_POSITIONS = [
-    // First row
-    OSKKeyInfo(0, 0, 1, Scancode(0x29, false)),
-    OSKKeyInfo(1, 0, 1, Scancode(0x02, false)),
-    OSKKeyInfo(2, 0, 1, Scancode(0x03, false)),
-    OSKKeyInfo(3, 0, 1, Scancode(0x04, false)),
-    OSKKeyInfo(4, 0, 1, Scancode(0x05, false)),
-    OSKKeyInfo(5, 0, 1, Scancode(0x06, false)),
-    OSKKeyInfo(6, 0, 1, Scancode(0x07, false)),
-    OSKKeyInfo(7, 0, 1, Scancode(0x08, false)),
-    OSKKeyInfo(8, 0, 1, Scancode(0x09, false)),
-    OSKKeyInfo(9, 0, 1, Scancode(0x0A, false)),
-    OSKKeyInfo(10, 0, 1, Scancode(0x0B, false)),
-    OSKKeyInfo(11, 0, 1, Scancode(0x0C, false)),
-    OSKKeyInfo(12, 0, 1, Scancode(0x0D, false)),
-    OSKKeyInfo(13, 0, 2, Scancode(0x0E, false)), // Backspace
-    // Second row
-    OSKKeyInfo(0, 1, 1.5, Scancode(0x0F, false)), // Tab
-    OSKKeyInfo(1.5, 1, 1, Scancode(0x10, false)),
-    OSKKeyInfo(2.5, 1, 1, Scancode(0x11, false)),
-    OSKKeyInfo(3.5, 1, 1, Scancode(0x12, false)),
-    OSKKeyInfo(4.5, 1, 1, Scancode(0x13, false)),
-    OSKKeyInfo(5.5, 1, 1, Scancode(0x14, false)),
-    OSKKeyInfo(6.5, 1, 1, Scancode(0x15, false)),
-    OSKKeyInfo(7.5, 1, 1, Scancode(0x16, false)),
-    OSKKeyInfo(8.5, 1, 1, Scancode(0x17, false)),
-    OSKKeyInfo(9.5, 1, 1, Scancode(0x18, false)),
-    OSKKeyInfo(10.5, 1, 1, Scancode(0x19, false)),
-    OSKKeyInfo(11.5, 1, 1, Scancode(0x1A, false)),
-    OSKKeyInfo(12.5, 1, 1, Scancode(0x1B, false)),
-    // Third row
-    OSKKeyInfo(0, 2, 1.75, Scancode(0x3A, false)), // Capslock
-    OSKKeyInfo(1.75, 2, 1, Scancode(0x1E, false)),
-    OSKKeyInfo(2.75, 2, 1, Scancode(0x1F, false)),
-    OSKKeyInfo(3.75, 2, 1, Scancode(0x20, false)),
-    OSKKeyInfo(4.75, 2, 1, Scancode(0x21, false)),
-    OSKKeyInfo(5.75, 2, 1, Scancode(0x22, false)),
-    OSKKeyInfo(6.75, 2, 1, Scancode(0x23, false)),
-    OSKKeyInfo(7.75, 2, 1, Scancode(0x24, false)),
-    OSKKeyInfo(8.75, 2, 1, Scancode(0x25, false)),
-    OSKKeyInfo(9.75, 2, 1, Scancode(0x26, false)),
-    OSKKeyInfo(10.75, 2, 1, Scancode(0x27, false)),
-    OSKKeyInfo(11.75, 2, 1, Scancode(0x28, false)),
-    OSKKeyInfo(12.75, 2, 1, Scancode(0x2B, false)),
-    // Fourth row
-    OSKKeyInfo(0, 3, 1.25, Scancode(0x2A, false)), // Shift
-    OSKKeyInfo(1.25, 3, 1, Scancode(0x56, false)),
-    OSKKeyInfo(2.25, 3, 1, Scancode(0x2C, false)),
-    OSKKeyInfo(3.25, 3, 1, Scancode(0x2D, false)),
-    OSKKeyInfo(4.25, 3, 1, Scancode(0x2E, false)),
-    OSKKeyInfo(5.25, 3, 1, Scancode(0x2F, false)),
-    OSKKeyInfo(6.25, 3, 1, Scancode(0x30, false)),
-    OSKKeyInfo(7.25, 3, 1, Scancode(0x31, false)),
-    OSKKeyInfo(8.25, 3, 1, Scancode(0x32, false)),
-    OSKKeyInfo(9.25, 3, 1, Scancode(0x33, false)),
-    OSKKeyInfo(10.25, 3, 1, Scancode(0x34, false)),
-    OSKKeyInfo(11.25, 3, 1, Scancode(0x35, false)),
-    OSKKeyInfo(12.25, 3, 2.75, Scancode(0x36, true)), // Shift
-    // Fifth row
-    OSKKeyInfo(3.75, 4, 6.25, Scancode(0x39, false)), // Space
-    OSKKeyInfo(10, 4, 1.25, Scancode(0x38, true)), // AltGr
-];
+// auto KEY_POSITIONS = [
+//     // First row
+//     OSKKeyInfo(0, 0, 1, Scancode(0x29, false)),
+//     OSKKeyInfo(1, 0, 1, Scancode(0x02, false)),
+//     OSKKeyInfo(2, 0, 1, Scancode(0x03, false)),
+//     OSKKeyInfo(3, 0, 1, Scancode(0x04, false)),
+//     OSKKeyInfo(4, 0, 1, Scancode(0x05, false)),
+//     OSKKeyInfo(5, 0, 1, Scancode(0x06, false)),
+//     OSKKeyInfo(6, 0, 1, Scancode(0x07, false)),
+//     OSKKeyInfo(7, 0, 1, Scancode(0x08, false)),
+//     OSKKeyInfo(8, 0, 1, Scancode(0x09, false)),
+//     OSKKeyInfo(9, 0, 1, Scancode(0x0A, false)),
+//     OSKKeyInfo(10, 0, 1, Scancode(0x0B, false)),
+//     OSKKeyInfo(11, 0, 1, Scancode(0x0C, false)),
+//     OSKKeyInfo(12, 0, 1, Scancode(0x0D, false)),
+//     OSKKeyInfo(13, 0, 2, Scancode(0x0E, false)), // Backspace
+//     // Second row
+//     OSKKeyInfo(0, 1, 1.5, Scancode(0x0F, false)), // Tab
+//     OSKKeyInfo(1.5, 1, 1, Scancode(0x10, false)),
+//     OSKKeyInfo(2.5, 1, 1, Scancode(0x11, false)),
+//     OSKKeyInfo(3.5, 1, 1, Scancode(0x12, false)),
+//     OSKKeyInfo(4.5, 1, 1, Scancode(0x13, false)),
+//     OSKKeyInfo(5.5, 1, 1, Scancode(0x14, false)),
+//     OSKKeyInfo(6.5, 1, 1, Scancode(0x15, false)),
+//     OSKKeyInfo(7.5, 1, 1, Scancode(0x16, false)),
+//     OSKKeyInfo(8.5, 1, 1, Scancode(0x17, false)),
+//     OSKKeyInfo(9.5, 1, 1, Scancode(0x18, false)),
+//     OSKKeyInfo(10.5, 1, 1, Scancode(0x19, false)),
+//     OSKKeyInfo(11.5, 1, 1, Scancode(0x1A, false)),
+//     OSKKeyInfo(12.5, 1, 1, Scancode(0x1B, false)),
+//     // Third row
+//     OSKKeyInfo(0, 2, 1.75, Scancode(0x3A, false)), // Capslock
+//     OSKKeyInfo(1.75, 2, 1, Scancode(0x1E, false)),
+//     OSKKeyInfo(2.75, 2, 1, Scancode(0x1F, false)),
+//     OSKKeyInfo(3.75, 2, 1, Scancode(0x20, false)),
+//     OSKKeyInfo(4.75, 2, 1, Scancode(0x21, false)),
+//     OSKKeyInfo(5.75, 2, 1, Scancode(0x22, false)),
+//     OSKKeyInfo(6.75, 2, 1, Scancode(0x23, false)),
+//     OSKKeyInfo(7.75, 2, 1, Scancode(0x24, false)),
+//     OSKKeyInfo(8.75, 2, 1, Scancode(0x25, false)),
+//     OSKKeyInfo(9.75, 2, 1, Scancode(0x26, false)),
+//     OSKKeyInfo(10.75, 2, 1, Scancode(0x27, false)),
+//     OSKKeyInfo(11.75, 2, 1, Scancode(0x28, false)),
+//     OSKKeyInfo(12.75, 2, 1, Scancode(0x2B, false)),
+//     // Fourth row
+//     OSKKeyInfo(0, 3, 1.25, Scancode(0x2A, false)), // Shift
+//     OSKKeyInfo(1.25, 3, 1, Scancode(0x56, false)),
+//     OSKKeyInfo(2.25, 3, 1, Scancode(0x2C, false)),
+//     OSKKeyInfo(3.25, 3, 1, Scancode(0x2D, false)),
+//     OSKKeyInfo(4.25, 3, 1, Scancode(0x2E, false)),
+//     OSKKeyInfo(5.25, 3, 1, Scancode(0x2F, false)),
+//     OSKKeyInfo(6.25, 3, 1, Scancode(0x30, false)),
+//     OSKKeyInfo(7.25, 3, 1, Scancode(0x31, false)),
+//     OSKKeyInfo(8.25, 3, 1, Scancode(0x32, false)),
+//     OSKKeyInfo(9.25, 3, 1, Scancode(0x33, false)),
+//     OSKKeyInfo(10.25, 3, 1, Scancode(0x34, false)),
+//     OSKKeyInfo(11.25, 3, 1, Scancode(0x35, false)),
+//     OSKKeyInfo(12.25, 3, 2.75, Scancode(0x36, true)), // Shift
+//     // Fifth row
+//     OSKKeyInfo(3.75, 4, 6.25, Scancode(0x39, false)), // Space
+//     OSKKeyInfo(10, 4, 1.25, Scancode(0x38, true)), // AltGr
+// ];
 
-auto KEY_POSITIONS_NUMPAD = [
-    // First row
-    OSKKeyInfo(16, 0, 1, Scancode(0x45, true)),
-    OSKKeyInfo(17, 0, 1, Scancode(0x35, true)),
-    OSKKeyInfo(18, 0, 1, Scancode(0x37, false)),
-    OSKKeyInfo(19, 0, 1, Scancode(0x4A, false)),
-    // Second row
-    OSKKeyInfo(16, 1, 1, Scancode(0x47, false)),
-    OSKKeyInfo(17, 1, 1, Scancode(0x48, false)),
-    OSKKeyInfo(18, 1, 1, Scancode(0x49, false)),
-    // Third row
-    OSKKeyInfo(16, 2, 1, Scancode(0x4B, false)),
-    OSKKeyInfo(17, 2, 1, Scancode(0x4C, false)),
-    OSKKeyInfo(18, 2, 1, Scancode(0x4D, false)),
-    // Fourth row
-    OSKKeyInfo(16, 3, 1, Scancode(0x4F, false)),
-    OSKKeyInfo(17, 3, 1, Scancode(0x50, false)),
-    OSKKeyInfo(18, 3, 1, Scancode(0x51, false)),
-    // Fifth row
-    OSKKeyInfo(16, 4, 2, Scancode(0x52, false)),
-    OSKKeyInfo(18, 4, 1, Scancode(0x53, false)),
-];
+// auto KEY_POSITIONS_NUMPAD = [
+//     // First row
+//     OSKKeyInfo(16, 0, 1, Scancode(0x45, true)),
+//     OSKKeyInfo(17, 0, 1, Scancode(0x35, true)),
+//     OSKKeyInfo(18, 0, 1, Scancode(0x37, false)),
+//     OSKKeyInfo(19, 0, 1, Scancode(0x4A, false)),
+//     // Second row
+//     OSKKeyInfo(16, 1, 1, Scancode(0x47, false)),
+//     OSKKeyInfo(17, 1, 1, Scancode(0x48, false)),
+//     OSKKeyInfo(18, 1, 1, Scancode(0x49, false)),
+//     // Third row
+//     OSKKeyInfo(16, 2, 1, Scancode(0x4B, false)),
+//     OSKKeyInfo(17, 2, 1, Scancode(0x4C, false)),
+//     OSKKeyInfo(18, 2, 1, Scancode(0x4D, false)),
+//     // Fourth row
+//     OSKKeyInfo(16, 3, 1, Scancode(0x4F, false)),
+//     OSKKeyInfo(17, 3, 1, Scancode(0x50, false)),
+//     OSKKeyInfo(18, 3, 1, Scancode(0x51, false)),
+//     // Fifth row
+//     OSKKeyInfo(16, 4, 2, Scancode(0x52, false)),
+//     OSKKeyInfo(18, 4, 1, Scancode(0x53, false)),
+// ];
 
-const float KEYBOARD_WIDTH_WITH_NUMPAD = 20;
-const float KEYBOARD_WIDTH_NO_NUMPAD = 15;
-const float KEYBOARD_HEIGHT = 5;
+const float KEYBOARD_WIDTH_WITH_NUMPAD = 20; // 20;
+const float KEYBOARD_WIDTH_NO_NUMPAD = 20; // 15;
+const float KEYBOARD_HEIGHT = 7; // 5;
 
 const float M_PI = 3.14159265358979323846;
 
@@ -149,7 +147,7 @@ void initOsk(JSONValue oskJson) {
         CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Segoe UI".toUTF16z);
     WIN_FONTS ~= CreateFont(0, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
         CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Segoe UI Symbol".toUTF16z);
-    
+
     foreach (HFONT win_font; WIN_FONTS) {
         CAIRO_FONTS ~= cairo_win32_font_face_create_for_hfont(win_font);
     }
@@ -179,7 +177,7 @@ void draw_osk(HWND hwnd, NeoLayout *layout, uint layer, bool capslock) {
     if (win_width == 0 || win_height == 0) {
         return;
     }
-    
+
     HDC hdcScreen = GetDC(NULL);
 
     // Offscreen hdc for painting
@@ -241,7 +239,7 @@ void draw_osk(HWND hwnd, NeoLayout *layout, uint layer, bool capslock) {
     void show_key_label_centered(Scancode scan, float key_x, float key_width, float baseline) {
         if (layout != null) {
             string label;
-            if (scan in layout.map) {    
+            if (scan in layout.map) {
                 auto entry = layout.map[scan];
                 uint layerConsideringCapslock = layer;
 
@@ -255,15 +253,27 @@ void draw_osk(HWND hwnd, NeoLayout *layout, uint layer, bool capslock) {
 
                 label = layout.map[scan].layers[layerConsideringCapslock-1].label;
             } else if (scan == layout.modifiers.shiftLeft || scan == layout.modifiers.shiftRight) {
-                label = "\u21e7";
+                label = "⇧";
             } else if (scan == layout.modifiers.mod3Left || scan == layout.modifiers.mod3Right) {
                 label = "M3";
             } else if (scan == layout.modifiers.mod4Left || scan == layout.modifiers.mod4Right) {
                 label = "M4";
+            } else if (scan == Scancode(0x01, false)) {
+                label = "⌧";
+            } else if (scan == Scancode(0x53, true)) {
+                label = "⌦"; // Delete
             } else if (scan == Scancode(0x0E, false)) {
-                label = "\u232b"; // Backspace
+                label = "⌫"; // Backspace
+            } else if (scan == Scancode(0x49, true)) {
+                label = "⇞"; // PgUp
+            } else if (scan == Scancode(0x51, true)) {
+                label = "⇟"; // PgUp
+            } else if (scan == Scancode(0x47, true)) {
+                label = "↸"; // Home
+            } else if (scan == Scancode(0x4F, true)) {
+                label = "⇲"; // End
             } else if (scan == Scancode(0x1C, true) || scan == Scancode(0x1C, false)) {
-                label = "\u21a9"; // Return or Numpad Return
+                label = "⏎"; // Return or Numpad Return
             }
 
             cairo_set_source_rgba(cr, 0.95, 0.95, 0.95, 1.0);
@@ -275,36 +285,189 @@ void draw_osk(HWND hwnd, NeoLayout *layout, uint layer, bool capslock) {
             cairo_show_text(cr, labelz);
         }
     }
+    void show_key(float x, float y, float width, float height, Scancode scan) {
+        round_rectangle(cr, x + PADDING, y + PADDING, width - 2*PADDING, height - 2*PADDING, CORNER_RADIUS);
+        cairo_set_source(cr, KEY_COLOR);
+        cairo_fill(cr);
+        show_key_label_centered(scan, x, width, y + (height-1)/2 + BASE_LINE);
+    }
+
+    void show_ergodox() {
+        void left(F)(F fn) {
+            fn();
+        }
+        void left_thumb(F)(F fn) {
+            cairo_save(cr);
+
+            cairo_translate(cr, 9.6, 4);
+            cairo_rotate(cr, 0.2);
+            cairo_translate(cr, -3, 0);
+            fn();
+            cairo_restore(cr);
+        }
+        void right(F)(F fn) {
+            cairo_save(cr);
+            cairo_translate(cr, 12, 0);
+            fn();
+            cairo_restore(cr);
+        }
+        void right_thumb(F)(F fn) {
+            cairo_save(cr);
+
+            cairo_translate(cr, 9.9, 4);
+            cairo_rotate(cr, -0.2);
+            fn();
+            cairo_restore(cr);
+        }
+
+        // First row
+        left({
+            //show_key(0, 0.2, 1.5, 1, Scancode(0x29, false));
+            show_key(0.0, 0.2, 1.5, 1, Scancode(0x01, false)); // ESC
+            show_key(1.5, 0.2, 1, 1, Scancode(0x02, false));
+            show_key(2.5, 0.1, 1, 1, Scancode(0x03, false));
+            show_key(3.5, 0.0, 1, 1, Scancode(0x04, false));
+            show_key(4.5, 0.1, 1, 1, Scancode(0x05, false));
+            show_key(5.5, 0.2, 1, 1, Scancode(0x06, false));
+            show_key(6.5, 0.2, 1, 1, Scancode(0x29, false)); // moved
+        });
+        right({
+            show_key(0, 0.2, 1, 1, Scancode(0x0D, false)); // moved
+            show_key(1, 0.2, 1, 1, Scancode(0x07, false));
+            show_key(2, 0.1, 1, 1, Scancode(0x08, false));
+            show_key(3, 0.0, 1, 1, Scancode(0x09, false));
+            show_key(4, 0.1, 1, 1, Scancode(0x0A, false));
+            show_key(5, 0.2, 1, 1, Scancode(0x0B, false));
+            show_key(6, 0.2, 1.5, 1, Scancode(0x0C, false));
+            //show_key(2, 0, 1, 1, Scancode(0x0D, false));
+            //show_key(3, 0, 2, 1, Scancode(0x0E, false)); // Backspace
+        });
+        // Second row
+        left({
+            show_key(0.0, 1.2, 1.5, 1, Scancode(0x0F, false)); // Tab
+            show_key(1.5, 1.2, 1, 1.0, Scancode(0x10, false));
+            show_key(2.5, 1.1, 1, 1.0, Scancode(0x11, false));
+            show_key(3.5, 1.0, 1, 1.0, Scancode(0x12, false));
+            show_key(4.5, 1.1, 1, 1.0, Scancode(0x13, false));
+            show_key(5.5, 1.2, 1, 1.0, Scancode(0x14, false));
+            show_key(6.5, 1.2, 1, 1.5, Scancode(0, false));
+        });
+        right({
+            show_key(0, 1.2, 1, 1.5, Scancode(0x1B, false)); // moved
+            show_key(1, 1.2, 1, 1.0, Scancode(0x15, false));
+            show_key(2, 1.1, 1, 1.0, Scancode(0x16, false));
+            show_key(3, 1.0, 1, 1.0, Scancode(0x17, false));
+            show_key(4, 1.1, 1, 1.0, Scancode(0x18, false));
+            show_key(5, 1.2, 1, 1.0, Scancode(0x19, false));
+            show_key(6, 1.2, 1.5, 1, Scancode(0x1A, false));
+            // show_key(2.5, 1, 1, 1, Scancode(0x1B, false));
+        });
+        // Third row
+        left({
+            // show_key(0, 2.2, 1.5, 1, Scancode(0x3A, false)); // Capslock
+            show_key(0.0, 2.2, 1.5, 1, Scancode(0x56, false)); // moved
+            show_key(1.5, 2.2, 1, 1, Scancode(0x1E, false));
+            show_key(2.5, 2.1, 1, 1, Scancode(0x1F, false));
+            show_key(3.5, 2.0, 1, 1, Scancode(0x20, false));
+            show_key(4.5, 2.1, 1, 1, Scancode(0x21, false));
+            show_key(5.5, 2.2, 1, 1, Scancode(0x22, false));
+        });
+        right({
+            show_key(1, 2.2, 1, 1, Scancode(0x23, false));
+            show_key(2, 2.1, 1, 1, Scancode(0x24, false));
+            show_key(3, 2.0, 1, 1, Scancode(0x25, false));
+            show_key(4, 2.1, 1, 1, Scancode(0x26, false));
+            show_key(5, 2.2, 1, 1, Scancode(0x27, false));
+            show_key(6, 2.2, 1.5, 1, Scancode(0x28, false));
+            // show_key(6, 2, 1, 1, Scancode(0x2B, false));
+        });
+        // Fourth row
+        left({
+            show_key(0.0, 3.2, 1.5, 1, Scancode(0x2A, false)); // Shift
+            // show_key(1.5, 3.2, 1, 1, Scancode(0x56, false));
+            show_key(1.5, 3.2, 1, 1.0, Scancode(0x2C, false));
+            show_key(2.5, 3.1, 1, 1.0, Scancode(0x2D, false));
+            show_key(3.5, 3.0, 1, 1.0, Scancode(0x2E, false));
+            show_key(4.5, 3.1, 1, 1.0, Scancode(0x2F, false));
+            show_key(5.5, 3.2, 1, 1.0, Scancode(0x30, false));
+            show_key(6.5, 2.7, 1, 1.5, Scancode(0x39, false)); // Space
+        });
+        right({
+            show_key(0, 2.7, 1, 1.5, Scancode(0x1C, false)); // return
+            show_key(1, 3.2, 1, 1.0, Scancode(0x31, false));
+            show_key(2, 3.1, 1, 1.0, Scancode(0x32, false));
+            show_key(3, 3.0, 1, 1.0, Scancode(0x33, false));
+            show_key(4, 3.1, 1, 1.0, Scancode(0x34, false));
+            show_key(5, 3.2, 1, 1.0, Scancode(0x35, false));
+            show_key(6, 3.2, 1.5, 1, Scancode(0x36, true)); // Shift
+        });
+        // Fifth row
+        left({
+            show_key(0.5, 4.2, 1, 1, Scancode(0x1D, false)); // Ctrl
+            show_key(1.5, 4.2, 1, 1, Scancode(0x1D, false)); // Ctrl
+            show_key(2.5, 4.1, 1, 1, Scancode(0, false));
+            show_key(3.5, 4.0, 1, 1, Scancode(0, false));
+            show_key(4.5, 4.1, 1, 1, Scancode(0x3A, false)); // moved
+        });
+        right({
+            show_key(2, 4.1, 1, 1, Scancode(0x2B, false)); // moved
+            show_key(3, 4.0, 1, 1, Scancode(0, false));
+            show_key(4, 4.1, 1, 1, Scancode(0, false));
+            show_key(5, 4.2, 1, 1, Scancode(0x1D, true)); // Ctrl Right
+            show_key(6, 4.2, 1, 1, Scancode(0x1D, true)); // Ctrl Right
+        });
+        // Thumbs
+        left_thumb({
+            show_key(1, 0, 1, 1, Scancode(0x5B, true)); // meta left
+            show_key(2, 0, 1, 1, Scancode(0x38, false)); // Alt
+
+            show_key(0, 1, 1, 2, Scancode(0x39, false)); // Space
+            show_key(1, 1, 1, 2, Scancode(0x53, true)); // Delete
+            show_key(2, 1, 1, 1, Scancode(0x47, true)); // Home
+            show_key(2, 2, 1, 1, Scancode(0x4F, true)); // End
+        });
+        right_thumb({
+            show_key(0, 0, 1, 1, Scancode(0x38, true)); // AltGr
+            show_key(1, 0, 1, 1, Scancode(0x5C, true)); // meta right
+
+            show_key(0, 1, 1, 1, Scancode(0x49, true)); // PgUp
+            show_key(0, 2, 1, 1, Scancode(0x51, true)); // PgDn
+            show_key(1, 1, 1, 2, Scancode(0x0E, false)); // Backspace
+            show_key(2, 1, 1, 2, Scancode(0x1C, false)); // Return
+        });
+    }
+
+    show_ergodox();
 
     // Draw “regular” keys, i.e. keys with height 1
-    foreach (key; configOskNumpad ? KEY_POSITIONS ~ KEY_POSITIONS_NUMPAD : KEY_POSITIONS) {    
-        round_rectangle(cr, key.x + PADDING, key.y + PADDING, key.width - 2*PADDING, 1 - 2*PADDING, CORNER_RADIUS);
-        cairo_set_source(cr, KEY_COLOR);
-        cairo_fill(cr);
+    //foreach (key; configOskNumpad ? KEY_POSITIONS ~ KEY_POSITIONS_NUMPAD : KEY_POSITIONS) {
+    //     round_rectangle(cr, key.x + PADDING, key.y + PADDING, key.width - 2*PADDING, key.height - 2*PADDING, CORNER_RADIUS);
+    //     cairo_set_source(cr, KEY_COLOR);
+    //     cairo_fill(cr);
 
-        show_key_label_centered(key.scan, key.x, key.width, key.y + BASE_LINE);
-    }
+    //     show_key_label_centered(key.scan, key.x, key.width, key.y + (key.height-1)/2 + BASE_LINE);
+    // }
 
     // Draw special keys with height ≠ 1
-    if (configOskNumpad) {
-        // Numpad Add
-        round_rectangle(cr, 19 + PADDING, 1 + PADDING, 1 - 2*PADDING, 2 - 2*PADDING, CORNER_RADIUS);
-        cairo_set_source(cr, KEY_COLOR);
-        cairo_fill(cr);
-        show_key_label_centered(Scancode(0x4E, false), 19, 1, 1.5 + BASE_LINE);
-        // Numpad Return
-        round_rectangle(cr, 19 + PADDING, 3 + PADDING, 1 - 2*PADDING, 2 - 2*PADDING, CORNER_RADIUS);
-        cairo_set_source(cr, KEY_COLOR);
-        cairo_fill(cr);
-        show_key_label_centered(Scancode(0x1C, true), 19, 1, 3.5 + BASE_LINE);
-    }
-    // Return
-    return_key(cr, 13.5 + PADDING, 1 + PADDING, 1.5 - 2*PADDING, 1.25 - 2*PADDING, 1 - 2*PADDING, 1, CORNER_RADIUS);
-    cairo_set_source(cr, KEY_COLOR);
-    cairo_fill(cr);
-    show_key_label_centered(Scancode(0x1C, false), 13.75, 1.25, 1.5 + BASE_LINE);
+    // if (configOskNumpad) {
+    //     // Numpad Add
+    //     round_rectangle(cr, 19 + PADDING, 1 + PADDING, 1 - 2*PADDING, 2 - 2*PADDING, CORNER_RADIUS);
+    //     cairo_set_source(cr, KEY_COLOR);
+    //     cairo_fill(cr);
+    //     show_key_label_centered(Scancode(0x4E, false), 19, 1, 1.5 + BASE_LINE);
+    //     // Numpad Return
+    //     round_rectangle(cr, 19 + PADDING, 3 + PADDING, 1 - 2*PADDING, 2 - 2*PADDING, CORNER_RADIUS);
+    //     cairo_set_source(cr, KEY_COLOR);
+    //     cairo_fill(cr);
+    //     show_key_label_centered(Scancode(0x1C, true), 19, 1, 3.5 + BASE_LINE);
+    // }
+    // // Return
+    // return_key(cr, 13.5 + PADDING, 1 + PADDING, 1.5 - 2*PADDING, 1.25 - 2*PADDING, 1 - 2*PADDING, 1, CORNER_RADIUS);
+    // cairo_set_source(cr, KEY_COLOR);
+    // cairo_fill(cr);
+    // show_key_label_centered(Scancode(0x1C, false), 13.75, 1.25, 1.5 + BASE_LINE);
 
-    // Cairo cleanup    
+    // Cairo cleanup
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
 
@@ -384,7 +547,7 @@ LRESULT oskWndProc(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam) {
         short y = cast(short) ((lParam >> 16) & 0xFFFF);
 
         const GRAB_WIDTH = 20;
-        
+
         if (x < win_rect.left + GRAB_WIDTH) {
             return HTLEFT;
         } else if (x > win_rect.right - GRAB_WIDTH) {
