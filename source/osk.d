@@ -21,9 +21,13 @@ const WM_DRAWOSK = WM_APP + 1;
 
 const UINT OSK_WIDTH_WITH_NUMPAD_96DPI = 1000;
 const UINT OSK_WIDTH_NO_NUMPAD_96DPI = 750;
-const UINT OSK_HEIGHT_96DPI = 250;
+const UINT OSK_HEIGHT_WITH_NUMROW_96DPI = 250;
+const UINT OSK_HEIGHT_NO_NUMROW_96DPI = 200;
 const UINT OSK_BOTTOM_OFFSET_96DPI = 5;
 const UINT OSK_MIN_WIDTH_96DPI = 250;
+
+const UINT OSK_WIDTH_ERGODOX_96DPI = 1000;
+const UINT OSK_HEIGHT_ERGODOX_96DPI = 350;
 
 uint dpi = 96;
 
@@ -33,6 +37,8 @@ OSKLayout configOskLayout;
 bool configOskNumberRow;
 OSKModifierNames configOskModifierNames;
 
+UINT OSK_WIDTH_96DPI;
+UINT OSK_HEIGHT_96DPI;
 
 enum OSKTheme {
     Grey,
@@ -41,6 +47,7 @@ enum OSKTheme {
 
 enum OSKLayout {
     ISO,
+    ERGODOX,
     ANSI
 }
 
@@ -51,7 +58,10 @@ enum OSKModifierNames {
 
 const float KEYBOARD_WIDTH_WITH_NUMPAD = 20;
 const float KEYBOARD_WIDTH_NO_NUMPAD = 15;
-const float KEYBOARD_HEIGHT = 5;
+const float KEYBOARD_HEIGHT_WITH_NUMROW = 5;
+
+const float KEYBOARD_WIDTH_ERGODOX = 20;
+const float KEYBOARD_HEIGHT_ERGODOX = 7;
 
 const float M_PI = 3.14159265358979323846;
 
@@ -67,12 +77,17 @@ void initOsk(JSONValue oskJson) {
     configOskNumberRow = oskJson["numberRow"].boolean;
     configOskModifierNames = oskJson["modifierNames"].str.toUpper.to!OSKModifierNames;
 
+    OSK_WIDTH_96DPI = configOskLayout == OSKLayout.ERGODOX ? OSK_WIDTH_ERGODOX_96DPI :
+        (configOskNumpad ? OSK_WIDTH_WITH_NUMPAD_96DPI : OSK_WIDTH_NO_NUMPAD_96DPI);
+    OSK_HEIGHT_96DPI = configOskLayout == OSKLayout.ERGODOX ? OSK_HEIGHT_ERGODOX_96DPI :
+        (configOskNumberRow ? OSK_HEIGHT_WITH_NUMROW_96DPI : OSK_HEIGHT_NO_NUMROW_96DPI);
+
     // Load fonts
     WIN_FONTS ~= CreateFont(0, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
         CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Segoe UI".toUTF16z);
     WIN_FONTS ~= CreateFont(0, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
         CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Segoe UI Symbol".toUTF16z);
-    
+
     foreach (HFONT winFont; WIN_FONTS) {
         CAIRO_FONTS ~= cairo_win32_font_face_create_for_hfont(winFont);
     }
@@ -102,7 +117,7 @@ void drawOsk(HWND hwnd, NeoLayout *layout, uint layer, bool capslock) {
     if (winWidth == 0 || winHeight == 0) {
         return;
     }
-    
+
     HDC hdcScreen = GetDC(NULL);
 
     // Offscreen hdc for painting
@@ -127,7 +142,10 @@ void drawOsk(HWND hwnd, NeoLayout *layout, uint layer, bool capslock) {
     // normal keys are 1 unit wide and high, (0, 0) is upper left,
     // with whole keyboard proportionally centered in window
     float keyboardWidthPx, keyboardHeightPx;
-    const float KEYBOARD_WIDTH = configOskNumpad ? KEYBOARD_WIDTH_WITH_NUMPAD : KEYBOARD_WIDTH_NO_NUMPAD;
+    const float KEYBOARD_WIDTH = configOskLayout == OSKLayout.ERGODOX ? KEYBOARD_WIDTH_ERGODOX :
+        (configOskNumpad ? KEYBOARD_WIDTH_WITH_NUMPAD : KEYBOARD_WIDTH_NO_NUMPAD);
+    const float KEYBOARD_HEIGHT = configOskLayout == OSKLayout.ERGODOX ? KEYBOARD_HEIGHT_ERGODOX :
+        (configOskNumberRow ? KEYBOARD_HEIGHT_WITH_NUMROW : (KEYBOARD_HEIGHT_WITH_NUMROW - 1));
     // should we letterbox left and right or on top and bottom?
     if (winWidth / winHeight > KEYBOARD_WIDTH / KEYBOARD_HEIGHT) {
         // letterbox left and right
@@ -165,7 +183,7 @@ void drawOsk(HWND hwnd, NeoLayout *layout, uint layer, bool capslock) {
         // Returns "UNMAPPED" for unmapped keys, those don't get drawn
 
         if (layout != null) {
-            if (scan in layout.map) {    
+            if (scan in layout.map) {
                 auto entry = layout.map[scan];
                 uint layerConsideringCapslock = layer;
 
@@ -207,6 +225,18 @@ void drawOsk(HWND hwnd, NeoLayout *layout, uint layer, bool capslock) {
                 return "\u232b"; // Backspace
             } else if (scan == Scancode(0x1C, true) || scan == Scancode(0x1C, false)) {
                 return "\u21a9"; // Return or Numpad Return
+            } else if (scan == Scancode(0x01, false)) {
+                return "⌧";
+            } else if (scan == Scancode(0x53, true)) {
+                return "⌦"; // Delete
+            } else if (scan == Scancode(0x49, true)) {
+                return "⇞"; // PgUp
+            } else if (scan == Scancode(0x51, true)) {
+                return "⇟"; // PgUp
+            } else if (scan == Scancode(0x47, true)) {
+                return "↸"; // Home
+            } else if (scan == Scancode(0x4F, true)) {
+                return "⇲"; // End
             }
         }
 
@@ -233,129 +263,283 @@ void drawOsk(HWND hwnd, NeoLayout *layout, uint layer, bool capslock) {
         cairo_set_source(cr, KEY_COLOR);
         cairo_fill(cr);
 
-        showKeyLabelCentered(label, x, width, y + (height - 1) / 2 + BASE_LINE);
+        showKeyLabelCentered(label, x, width, y + (height-1)/2 + BASE_LINE);
     }
 
-    // Draw “regular” keys, i.e. keys with height 1
-    // First row
-    if (configOskNumberRow) {
-        drawKey(0, 0, 1, 1, Scancode(0x29, false));
-        drawKey(1, 0, 1, 1, Scancode(0x02, false));
-        drawKey(2, 0, 1, 1, Scancode(0x03, false));
-        drawKey(3, 0, 1, 1, Scancode(0x04, false));
-        drawKey(4, 0, 1, 1, Scancode(0x05, false));
-        drawKey(5, 0, 1, 1, Scancode(0x06, false));
-        drawKey(6, 0, 1, 1, Scancode(0x07, false));
-        drawKey(7, 0, 1, 1, Scancode(0x08, false));
-        drawKey(8, 0, 1, 1, Scancode(0x09, false));
-        drawKey(9, 0, 1, 1, Scancode(0x0A, false));
-        drawKey(10, 0, 1, 1, Scancode(0x0B, false));
-        drawKey(11, 0, 1, 1, Scancode(0x0C, false));
-        drawKey(12, 0, 1, 1, Scancode(0x0D, false));
-        drawKey(13, 0, 2, 1, Scancode(0x0E, false)); // Backspace
-    }
-    // Second row
-    drawKey(0, 1, 1.5, 1, Scancode(0x0F, false)); // Tab
-    drawKey(1.5, 1, 1, 1, Scancode(0x10, false));
-    drawKey(2.5, 1, 1, 1, Scancode(0x11, false));
-    drawKey(3.5, 1, 1, 1, Scancode(0x12, false));
-    drawKey(4.5, 1, 1, 1, Scancode(0x13, false));
-    drawKey(5.5, 1, 1, 1, Scancode(0x14, false));
-    drawKey(6.5, 1, 1, 1, Scancode(0x15, false));
-    drawKey(7.5, 1, 1, 1, Scancode(0x16, false));
-    drawKey(8.5, 1, 1, 1, Scancode(0x17, false));
-    drawKey(9.5, 1, 1, 1, Scancode(0x18, false));
-    drawKey(10.5, 1, 1, 1, Scancode(0x19, false));
-    drawKey(11.5, 1, 1, 1, Scancode(0x1A, false));
-    drawKey(12.5, 1, 1, 1, Scancode(0x1B, false));
-    if (configOskLayout == OSKLayout.ISO) {
-        // OEM key on third row
-        drawKey(12.75, 2, 1, 1, Scancode(0x2B, false));
-
-        // Big return key
-        string label = getKeyLabel(Scancode(0x1C, false));
-        if (label != "UNMAPPED") {
-            returnKey(cr, 13.5 + PADDING, 1 + PADDING, 1.5 - 2*PADDING, 1.25 - 2*PADDING, 1 - 2*PADDING, 1, CORNER_RADIUS);
-            cairo_set_source(cr, KEY_COLOR);
-            cairo_fill(cr);
-            showKeyLabelCentered(label, 13.75, 1.25, 1.5 + BASE_LINE);
-        }
-    } else if (configOskLayout == OSKLayout.ANSI) {
-        // OEM key
-        drawKey(13.5, 1, 1.5, 1, Scancode(0x2B, false));
-
-        // Third row return key
-        drawKey(12.75, 2, 2.25, 1, Scancode(0x1C, false));
-    }
-    // Third row
-    drawKey(0, 2, 1.75, 1, Scancode(0x3A, false)); // Capslock
-    drawKey(1.75, 2, 1, 1, Scancode(0x1E, false));
-    drawKey(2.75, 2, 1, 1, Scancode(0x1F, false));
-    drawKey(3.75, 2, 1, 1, Scancode(0x20, false));
-    drawKey(4.75, 2, 1, 1, Scancode(0x21, false));
-    drawKey(5.75, 2, 1, 1, Scancode(0x22, false));
-    drawKey(6.75, 2, 1, 1, Scancode(0x23, false));
-    drawKey(7.75, 2, 1, 1, Scancode(0x24, false));
-    drawKey(8.75, 2, 1, 1, Scancode(0x25, false));
-    drawKey(9.75, 2, 1, 1, Scancode(0x26, false));
-    drawKey(10.75, 2, 1, 1, Scancode(0x27, false));
-    drawKey(11.75, 2, 1, 1, Scancode(0x28, false));
-    // Fourth row
-    if (configOskLayout == OSKLayout.ISO) {
-        drawKey(0, 3, 1.25, 1, Scancode(0x2A, false)); // Shift
-        drawKey(1.25, 3, 1, 1, Scancode(0x56, false)); // OEM key
-    } else if (configOskLayout == OSKLayout.ANSI) {
-        drawKey(0, 3, 2.25, 1, Scancode(0x2A, false)); // Shift
-    }
-    drawKey(2.25, 3, 1, 1, Scancode(0x2C, false));
-    drawKey(3.25, 3, 1, 1, Scancode(0x2D, false));
-    drawKey(4.25, 3, 1, 1, Scancode(0x2E, false));
-    drawKey(5.25, 3, 1, 1, Scancode(0x2F, false));
-    drawKey(6.25, 3, 1, 1, Scancode(0x30, false));
-    drawKey(7.25, 3, 1, 1, Scancode(0x31, false));
-    drawKey(8.25, 3, 1, 1, Scancode(0x32, false));
-    drawKey(9.25, 3, 1, 1, Scancode(0x33, false));
-    drawKey(10.25, 3, 1, 1, Scancode(0x34, false));
-    drawKey(11.25, 3, 1, 1, Scancode(0x35, false));
-    drawKey(12.25, 3, 2.75, 1, Scancode(0x36, true)); // Shift
-    // Fifth row
-    drawKey(0, 4, 1.25, 1, Scancode(0x1D, false)); // Ctrl
-    drawKey(1.25, 4, 1.25, 1, Scancode(0x5B, true)); // Win
-    drawKey(2.5, 4, 1.25, 1, Scancode(0x38, false)); // Alt
-    drawKey(3.75, 4, 6.25, 1, Scancode(0x39, false)); // Space
-    drawKey(10, 4, 1.25, 1, Scancode(0x38, true)); // AltGr
-    drawKey(11.25, 4, 1.25, 1, Scancode(0x5C, true)); // Win
-    drawKey(13.75, 4, 1.25, 1, Scancode(0x1D, true)); // Ctrl
-    
-    if (configOskNumpad) {
+    void drawDefault() {
+        // Draw “regular” keys, i.e. keys with height 1
         // First row
-        drawKey(16, 0, 1, 1, Scancode(0x45, true));
-        drawKey(17, 0, 1, 1, Scancode(0x35, true));
-        drawKey(18, 0, 1, 1, Scancode(0x37, false));
-        drawKey(19, 0, 1, 1, Scancode(0x4A, false));
+        if (configOskNumberRow) {
+            drawKey(0, 0, 1, 1, Scancode(0x29, false));
+            drawKey(1, 0, 1, 1, Scancode(0x02, false));
+            drawKey(2, 0, 1, 1, Scancode(0x03, false));
+            drawKey(3, 0, 1, 1, Scancode(0x04, false));
+            drawKey(4, 0, 1, 1, Scancode(0x05, false));
+            drawKey(5, 0, 1, 1, Scancode(0x06, false));
+            drawKey(6, 0, 1, 1, Scancode(0x07, false));
+            drawKey(7, 0, 1, 1, Scancode(0x08, false));
+            drawKey(8, 0, 1, 1, Scancode(0x09, false));
+            drawKey(9, 0, 1, 1, Scancode(0x0A, false));
+            drawKey(10, 0, 1, 1, Scancode(0x0B, false));
+            drawKey(11, 0, 1, 1, Scancode(0x0C, false));
+            drawKey(12, 0, 1, 1, Scancode(0x0D, false));
+            drawKey(13, 0, 2, 1, Scancode(0x0E, false)); // Backspace
+        }
         // Second row
-        drawKey(16, 1, 1, 1, Scancode(0x47, false));
-        drawKey(17, 1, 1, 1, Scancode(0x48, false));
-        drawKey(18, 1, 1, 1, Scancode(0x49, false));
-        // Third row
-        drawKey(16, 2, 1, 1, Scancode(0x4B, false));
-        drawKey(17, 2, 1, 1, Scancode(0x4C, false));
-        drawKey(18, 2, 1, 1, Scancode(0x4D, false));
-        // Fourth row
-        drawKey(16, 3, 1, 1, Scancode(0x4F, false));
-        drawKey(17, 3, 1, 1, Scancode(0x50, false));
-        drawKey(18, 3, 1, 1, Scancode(0x51, false));
-        // Fifth row
-        drawKey(16, 4, 2, 1, Scancode(0x52, false));
-        drawKey(18, 4, 1, 1, Scancode(0x53, false));
+        drawKey(0, 1, 1.5, 1, Scancode(0x0F, false)); // Tab
+        drawKey(1.5, 1, 1, 1, Scancode(0x10, false));
+        drawKey(2.5, 1, 1, 1, Scancode(0x11, false));
+        drawKey(3.5, 1, 1, 1, Scancode(0x12, false));
+        drawKey(4.5, 1, 1, 1, Scancode(0x13, false));
+        drawKey(5.5, 1, 1, 1, Scancode(0x14, false));
+        drawKey(6.5, 1, 1, 1, Scancode(0x15, false));
+        drawKey(7.5, 1, 1, 1, Scancode(0x16, false));
+        drawKey(8.5, 1, 1, 1, Scancode(0x17, false));
+        drawKey(9.5, 1, 1, 1, Scancode(0x18, false));
+        drawKey(10.5, 1, 1, 1, Scancode(0x19, false));
+        drawKey(11.5, 1, 1, 1, Scancode(0x1A, false));
+        drawKey(12.5, 1, 1, 1, Scancode(0x1B, false));
+        if (configOskLayout == OSKLayout.ISO) {
+            // OEM key on third row
+            drawKey(12.75, 2, 1, 1, Scancode(0x2B, false));
 
-        // Numpad Add
-        drawKey(19, 1, 1, 2, Scancode(0x4E, false));
-        // Numpad Return
-        drawKey(19, 3, 1, 2, Scancode(0x1C, true));
+            // Big return key
+            string label = getKeyLabel(Scancode(0x1C, false));
+            if (label != "UNMAPPED") {
+                returnKey(cr, 13.5 + PADDING, 1 + PADDING, 1.5 - 2 * PADDING, 1.25 - 2 * PADDING, 1 - 2 * PADDING, 1, CORNER_RADIUS);
+                cairo_set_source(cr, KEY_COLOR);
+                cairo_fill(cr);
+                showKeyLabelCentered(label, 13.75, 1.25, 1.5 + BASE_LINE);
+            }
+        } else if (configOskLayout == OSKLayout.ANSI) {
+            // OEM key
+            drawKey(13.5, 1, 1.5, 1, Scancode(0x2B, false));
+
+            // Third row return key
+            drawKey(12.75, 2, 2.25, 1, Scancode(0x1C, false));
+        }
+        // Third row
+        drawKey(0, 2, 1.75, 1, Scancode(0x3A, false)); // Capslock
+        drawKey(1.75, 2, 1, 1, Scancode(0x1E, false));
+        drawKey(2.75, 2, 1, 1, Scancode(0x1F, false));
+        drawKey(3.75, 2, 1, 1, Scancode(0x20, false));
+        drawKey(4.75, 2, 1, 1, Scancode(0x21, false));
+        drawKey(5.75, 2, 1, 1, Scancode(0x22, false));
+        drawKey(6.75, 2, 1, 1, Scancode(0x23, false));
+        drawKey(7.75, 2, 1, 1, Scancode(0x24, false));
+        drawKey(8.75, 2, 1, 1, Scancode(0x25, false));
+        drawKey(9.75, 2, 1, 1, Scancode(0x26, false));
+        drawKey(10.75, 2, 1, 1, Scancode(0x27, false));
+        drawKey(11.75, 2, 1, 1, Scancode(0x28, false));
+        // Fourth row
+        if (configOskLayout == OSKLayout.ISO) {
+            drawKey(0, 3, 1.25, 1, Scancode(0x2A, false)); // Shift
+            drawKey(1.25, 3, 1, 1, Scancode(0x56, false)); // OEM key
+        } else if (configOskLayout == OSKLayout.ANSI) {
+            drawKey(0, 3, 2.25, 1, Scancode(0x2A, false)); // Shift
+        }
+        drawKey(2.25, 3, 1, 1, Scancode(0x2C, false));
+        drawKey(3.25, 3, 1, 1, Scancode(0x2D, false));
+        drawKey(4.25, 3, 1, 1, Scancode(0x2E, false));
+        drawKey(5.25, 3, 1, 1, Scancode(0x2F, false));
+        drawKey(6.25, 3, 1, 1, Scancode(0x30, false));
+        drawKey(7.25, 3, 1, 1, Scancode(0x31, false));
+        drawKey(8.25, 3, 1, 1, Scancode(0x32, false));
+        drawKey(9.25, 3, 1, 1, Scancode(0x33, false));
+        drawKey(10.25, 3, 1, 1, Scancode(0x34, false));
+        drawKey(11.25, 3, 1, 1, Scancode(0x35, false));
+        drawKey(12.25, 3, 2.75, 1, Scancode(0x36, true)); // Shift
+        // Fifth row
+        drawKey(0, 4, 1.25, 1, Scancode(0x1D, false)); // Ctrl
+        drawKey(1.25, 4, 1.25, 1, Scancode(0x5B, true)); // Win
+        drawKey(2.5, 4, 1.25, 1, Scancode(0x38, false)); // Alt
+        drawKey(3.75, 4, 6.25, 1, Scancode(0x39, false)); // Space
+        drawKey(10, 4, 1.25, 1, Scancode(0x38, true)); // AltGr
+        drawKey(11.25, 4, 1.25, 1, Scancode(0x5C, true)); // Win
+        drawKey(13.75, 4, 1.25, 1, Scancode(0x1D, true)); // Ctrl
+
+        if (configOskNumpad) {
+            // First row
+            drawKey(16, 0, 1, 1, Scancode(0x45, true));
+            drawKey(17, 0, 1, 1, Scancode(0x35, true));
+            drawKey(18, 0, 1, 1, Scancode(0x37, false));
+            drawKey(19, 0, 1, 1, Scancode(0x4A, false));
+            // Second row
+            drawKey(16, 1, 1, 1, Scancode(0x47, false));
+            drawKey(17, 1, 1, 1, Scancode(0x48, false));
+            drawKey(18, 1, 1, 1, Scancode(0x49, false));
+            // Third row
+            drawKey(16, 2, 1, 1, Scancode(0x4B, false));
+            drawKey(17, 2, 1, 1, Scancode(0x4C, false));
+            drawKey(18, 2, 1, 1, Scancode(0x4D, false));
+            // Fourth row
+            drawKey(16, 3, 1, 1, Scancode(0x4F, false));
+            drawKey(17, 3, 1, 1, Scancode(0x50, false));
+            drawKey(18, 3, 1, 1, Scancode(0x51, false));
+            // Fifth row
+            drawKey(16, 4, 2, 1, Scancode(0x52, false));
+            drawKey(18, 4, 1, 1, Scancode(0x53, false));
+            // Numpad Add
+            drawKey(19, 1, 1, 2, Scancode(0x4E, false));
+            // Numpad Return
+            drawKey(19, 3, 1, 2, Scancode(0x1C, true));
+        }
     }
 
-    // Cairo cleanup    
+    void drawErgodox() {
+        void left(F)(F fn) {
+            fn();
+        }
+        void leftThumb(F)(F fn) {
+            cairo_save(cr);
+
+            cairo_translate(cr, 9.6, 4);
+            cairo_rotate(cr, 0.2);
+            cairo_translate(cr, -3, 0);
+            fn();
+            cairo_restore(cr);
+        }
+        void right(F)(F fn) {
+            cairo_save(cr);
+            cairo_translate(cr, 12, 0);
+            fn();
+            cairo_restore(cr);
+        }
+        void rightThumb(F)(F fn) {
+            cairo_save(cr);
+
+            cairo_translate(cr, 9.9, 4);
+            cairo_rotate(cr, -0.2);
+            fn();
+            cairo_restore(cr);
+        }
+
+        // First row
+        if (configOskNumberRow) {
+            left({
+                //drawKey(0, 0.2, 1.5, 1, Scancode(0x29, false));
+                drawKey(0.0, 0.2, 1.5, 1, Scancode(0x01, false)); // ESC
+                drawKey(1.5, 0.2, 1, 1, Scancode(0x02, false));
+                drawKey(2.5, 0.1, 1, 1, Scancode(0x03, false));
+                drawKey(3.5, 0.0, 1, 1, Scancode(0x04, false));
+                drawKey(4.5, 0.1, 1, 1, Scancode(0x05, false));
+                drawKey(5.5, 0.2, 1, 1, Scancode(0x06, false));
+                drawKey(6.5, 0.2, 1, 1, Scancode(0x29, false)); // moved
+            });
+            right({
+                drawKey(0, 0.2, 1, 1, Scancode(0x0D, false)); // moved
+                drawKey(1, 0.2, 1, 1, Scancode(0x07, false));
+                drawKey(2, 0.1, 1, 1, Scancode(0x08, false));
+                drawKey(3, 0.0, 1, 1, Scancode(0x09, false));
+                drawKey(4, 0.1, 1, 1, Scancode(0x0A, false));
+                drawKey(5, 0.2, 1, 1, Scancode(0x0B, false));
+                drawKey(6, 0.2, 1.5, 1, Scancode(0x0C, false));
+                //drawKey(2, 0, 1, 1, Scancode(0x0D, false));
+                //drawKey(3, 0, 2, 1, Scancode(0x0E, false)); // Backspace
+            });
+        }
+        // Second row
+        left({
+            drawKey(0.0, 1.2, 1.5, 1, Scancode(0x0F, false)); // Tab
+            drawKey(1.5, 1.2, 1, 1.0, Scancode(0x10, false));
+            drawKey(2.5, 1.1, 1, 1.0, Scancode(0x11, false));
+            drawKey(3.5, 1.0, 1, 1.0, Scancode(0x12, false));
+            drawKey(4.5, 1.1, 1, 1.0, Scancode(0x13, false));
+            drawKey(5.5, 1.2, 1, 1.0, Scancode(0x14, false));
+            drawKey(6.5, 1.2, 1, 1.5, Scancode(0, false));
+        });
+        right({
+            drawKey(0, 1.2, 1, 1.5, Scancode(0x1B, false)); // moved
+            drawKey(1, 1.2, 1, 1.0, Scancode(0x15, false));
+            drawKey(2, 1.1, 1, 1.0, Scancode(0x16, false));
+            drawKey(3, 1.0, 1, 1.0, Scancode(0x17, false));
+            drawKey(4, 1.1, 1, 1.0, Scancode(0x18, false));
+            drawKey(5, 1.2, 1, 1.0, Scancode(0x19, false));
+            drawKey(6, 1.2, 1.5, 1, Scancode(0x1A, false));
+            // drawKey(2.5, 1, 1, 1, Scancode(0x1B, false));
+        });
+        // Third row
+        left({
+            // drawKey(0, 2.2, 1.5, 1, Scancode(0x3A, false)); // Capslock
+            drawKey(0.0, 2.2, 1.5, 1, Scancode(0x56, false)); // moved
+            drawKey(1.5, 2.2, 1, 1, Scancode(0x1E, false));
+            drawKey(2.5, 2.1, 1, 1, Scancode(0x1F, false));
+            drawKey(3.5, 2.0, 1, 1, Scancode(0x20, false));
+            drawKey(4.5, 2.1, 1, 1, Scancode(0x21, false));
+            drawKey(5.5, 2.2, 1, 1, Scancode(0x22, false));
+        });
+        right({
+            drawKey(1, 2.2, 1, 1, Scancode(0x23, false));
+            drawKey(2, 2.1, 1, 1, Scancode(0x24, false));
+            drawKey(3, 2.0, 1, 1, Scancode(0x25, false));
+            drawKey(4, 2.1, 1, 1, Scancode(0x26, false));
+            drawKey(5, 2.2, 1, 1, Scancode(0x27, false));
+            drawKey(6, 2.2, 1.5, 1, Scancode(0x28, false));
+            // drawKey(6, 2, 1, 1, Scancode(0x2B, false));
+        });
+        // Fourth row
+        left({
+            drawKey(0.0, 3.2, 1.5, 1, Scancode(0x2A, false)); // Shift
+            // drawKey(1.5, 3.2, 1, 1, Scancode(0x56, false));
+            drawKey(1.5, 3.2, 1, 1.0, Scancode(0x2C, false));
+            drawKey(2.5, 3.1, 1, 1.0, Scancode(0x2D, false));
+            drawKey(3.5, 3.0, 1, 1.0, Scancode(0x2E, false));
+            drawKey(4.5, 3.1, 1, 1.0, Scancode(0x2F, false));
+            drawKey(5.5, 3.2, 1, 1.0, Scancode(0x30, false));
+            drawKey(6.5, 2.7, 1, 1.5, Scancode(0x39, false)); // Space
+        });
+        right({
+            drawKey(0, 2.7, 1, 1.5, Scancode(0x1C, false)); // return
+            drawKey(1, 3.2, 1, 1.0, Scancode(0x31, false));
+            drawKey(2, 3.1, 1, 1.0, Scancode(0x32, false));
+            drawKey(3, 3.0, 1, 1.0, Scancode(0x33, false));
+            drawKey(4, 3.1, 1, 1.0, Scancode(0x34, false));
+            drawKey(5, 3.2, 1, 1.0, Scancode(0x35, false));
+            drawKey(6, 3.2, 1.5, 1, Scancode(0x36, true)); // Shift
+        });
+        // Fifth row
+        left({
+            drawKey(0.5, 4.2, 1, 1, Scancode(0x1D, false)); // Ctrl
+            drawKey(1.5, 4.2, 1, 1, Scancode(0x1D, false)); // Ctrl
+            drawKey(2.5, 4.1, 1, 1, Scancode(0, false));
+            drawKey(3.5, 4.0, 1, 1, Scancode(0, false));
+            drawKey(4.5, 4.1, 1, 1, Scancode(0x3A, false)); // moved
+        });
+        right({
+            drawKey(2, 4.1, 1, 1, Scancode(0x2B, false)); // moved
+            drawKey(3, 4.0, 1, 1, Scancode(0, false));
+            drawKey(4, 4.1, 1, 1, Scancode(0, false));
+            drawKey(5, 4.2, 1, 1, Scancode(0x1D, true)); // Ctrl Right
+            drawKey(6, 4.2, 1, 1, Scancode(0x1D, true)); // Ctrl Right
+        });
+        // Thumbs
+        leftThumb({
+            drawKey(1, 0, 1, 1, Scancode(0x5B, true)); // meta left
+            drawKey(2, 0, 1, 1, Scancode(0x38, false)); // Alt
+
+            drawKey(0, 1, 1, 2, Scancode(0x39, false)); // Space
+            drawKey(1, 1, 1, 2, Scancode(0x53, true)); // Delete
+            drawKey(2, 1, 1, 1, Scancode(0x47, true)); // Home
+            drawKey(2, 2, 1, 1, Scancode(0x4F, true)); // End
+        });
+        rightThumb({
+            drawKey(0, 0, 1, 1, Scancode(0x38, true)); // AltGr
+            drawKey(1, 0, 1, 1, Scancode(0x5C, true)); // meta right
+
+            drawKey(0, 1, 1, 1, Scancode(0x49, true)); // PgUp
+            drawKey(0, 2, 1, 1, Scancode(0x51, true)); // PgDn
+            drawKey(1, 1, 1, 2, Scancode(0x0E, false)); // Backspace
+            drawKey(2, 1, 1, 2, Scancode(0x1C, false)); // Return
+        });
+    }
+
+    if (configOskLayout == OSKLayout.ERGODOX) {
+        drawErgodox();
+    } else {
+        drawDefault();
+    }
+
+    // Cairo cleanup
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
 
@@ -421,7 +605,7 @@ LRESULT oskWndProc(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam) {
     GetWindowRect(hwnd, &winRect);
 
     uint calculateHeightWithAspectRatio(uint width) {
-        return width * OSK_HEIGHT_96DPI / (configOskNumpad ? OSK_WIDTH_WITH_NUMPAD_96DPI : OSK_WIDTH_NO_NUMPAD_96DPI);
+        return width * OSK_HEIGHT_96DPI / OSK_WIDTH_96DPI;
     }
 
     switch (msg) {
@@ -431,7 +615,7 @@ LRESULT oskWndProc(HWND hwnd, uint msg, WPARAM wParam, LPARAM lParam) {
         short y = cast(short) ((lParam >> 16) & 0xFFFF);
 
         const GRAB_WIDTH = 20;
-        
+
         if (x < winRect.left + GRAB_WIDTH) {
             return HTLEFT;
         } else if (x > winRect.right - GRAB_WIDTH) {
@@ -494,7 +678,7 @@ void centerOskOnScreen(HWND hwnd) {
         debugWriteln("Running with system DPI scaling");
     }
 
-    uint winWidth = ((configOskNumpad ? OSK_WIDTH_WITH_NUMPAD_96DPI : OSK_WIDTH_NO_NUMPAD_96DPI) * dpi) / 96;
+    uint winWidth = (OSK_WIDTH_96DPI * dpi) / 96;
     uint winHeight = (OSK_HEIGHT_96DPI * dpi) / 96;
     uint winBottomOffset = (OSK_BOTTOM_OFFSET_96DPI * dpi) / 96;
     SetWindowPos(hwnd, cast(HWND) 0,
